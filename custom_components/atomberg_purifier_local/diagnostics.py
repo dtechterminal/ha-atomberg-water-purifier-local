@@ -9,6 +9,9 @@ async def async_get_config_entry_diagnostics(hass, entry):
     state = coordinator.data
     return {
         "last_update_success": coordinator.last_update_success,
+        "poll_interval_seconds": coordinator.update_interval.total_seconds(),
+        "last_successful_read": (coordinator.last_successful_read.isoformat()
+                                 if coordinator.last_successful_read else None),
         "receiver": coordinator.client.receiver,
         "model": state.fields[2],
         "firmware": state.fields[4],

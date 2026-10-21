@@ -1,6 +1,6 @@
 # Additional sensor mapping
 
-The tested W2 sends a 61-field status record. Established settings and TDS readings are exposed alongside three explicitly labelled beta analytics sensors. The integration's diagnostic download retains the complete indexed record so more readings can be identified without network captures or a cloud account.
+The tested W2 sends a 61-field status record. Established settings and TDS readings are exposed alongside eight remaining-capacity estimates and three explicitly labelled beta analytics sensors. The integration's diagnostic download retains the complete indexed record so more readings can be identified without network captures or a cloud account.
 
 ## Confirmed
 
@@ -11,7 +11,7 @@ The tested W2 sends a 61-field status record. Established settings and TDS readi
 
 ## Beta analytics (0.2.0)
 
-These readings matched the corresponding W2 app pages. They are provisional until comparison through a full refill cycle is complete. Each entity carries `mapping_status: beta`; the companion card labels its Insights page **Beta**. No filter percentages are inferred from these counters.
+These readings matched the corresponding W2 app pages. They are provisional until comparison through a full refill cycle is complete. Each entity carries `mapping_status: beta`; the companion card labels its Insights page **Beta**. Filter life uses the independently recovered app formulas described below.
 
 | Entity suffix | Local calculation | Unit |
 | --- | --- | --- |
@@ -21,11 +21,15 @@ These readings matched the corresponding W2 app pages. They are provisional unti
 
 Water saved uses [Atomberg's published estimate](https://developer.atomberg-iot.com/reference/get-device-analytics), comparing with a 25% recovery purifier. Runtime corresponds to the app's **Runtime** page; the API describes this as UV runtime. Lifetime water is the app's **Lifetime Consumption**, not a directly calibrated dispensing meter.
 
-Negative, non-finite, missing and implausibly large counters become unknown, never a fabricated zero. These sensors intentionally have no statistics state class until counter/reset behavior is validated; ordinary recorder history remains available. Two measured draws did not trigger a refill, so they did not establish dynamic production-counter behavior.
+Negative, non-finite, missing and implausibly large counters become unknown, never a fabricated zero. These sensors intentionally have no statistics state class until counter/reset behavior is validated; ordinary recorder history remains available. A later refill changed all production/runtime counters consistently; a simultaneous post-refill app comparison is still pending.
+
+## Filter life (0.3.0)
+
+Eight capacity estimates use the app’s decoded formulas and local counters. All eight matched the recorded W2 app screen. See [the calculations, early-life fallback and limitations](filter-life.md). They assume original components; replacement history and flow-based adjustments are not included.
 
 ## Still being investigated
 
-- Filter-health percentages and replacement estimates.
+- Importing replacement baselines and reproducing the app’s historical flow-based health adjustments.
 - Refill-cycle validation and reset behavior of the beta totals.
 - Instantaneous RO/UF flow, pump runtime and tank-level / dispensing flags.
 - Operating state and fault indicators.

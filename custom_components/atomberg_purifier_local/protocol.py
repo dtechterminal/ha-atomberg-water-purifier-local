@@ -30,6 +30,20 @@ SETTING_FIELDS = {
     "start_utc": 54,
     "stop_utc": 55,
 }
+# Capacities recovered from the W2 app's filter-life calculation. These are
+# remaining-capacity estimates; replacement history and flow-based smoothing
+# are separate app inputs, not part of the local status record.
+FILTER_LIFE = {
+    "pre_filter_life": ("Pre-filter life", 25000),
+    "sediment_filter_life": ("Inline sediment filter life", 25000),
+    "pre_carbon_filter_life": ("Pre-carbon filter life", 25000),
+    "ro_membrane_life": ("RO membrane life", 12500),
+    "uf_membrane_life": ("UF membrane life", 12000),
+    "uv_lamp_life": ("UV lamp life", 21600000),
+    "pump_life": ("Pump life", 7200000),
+    "alkaliser_life": ("Alkaliser life", 12500),
+}
+OPTIONAL_COUNTER_FIELDS = (19, 24, 25, 26, 27, 40, 44)
 
 
 def normalize_device_id(value: str) -> str:
@@ -67,6 +81,36 @@ class State:
         value = self.counter(26)
         return None if value is None else value / 3600
 
+    def filter_life(self, key: str) -> int | None:
+        """Remaining original-filter capacity, rounded up as in the app.
+
+        The app switches to the scaled counters after 100 scaled litres.
+        An invalid scaled counter must stay unknown, not select the fallback.
+        See docs/filter-life.md for the app's additional history/flow inputs.
+        """
+        capacity = FILTER_LIFE[key][1]
+        if key in ("pre_filter_life", "sediment_filter_life", "pre_carbon_filter_life",
+                   "ro_membrane_life"):
+            scaled = self.counter(40)
+            if scaled is None:
+                return None
+            if scaled > 100000:
+                value = self.counter(44) if key == "ro_membrane_life" else scaled
+            elif key == "ro_membrane_life":
+                value = self.counter(24)
+            else:
+                ro, uf = self.counter(24), self.counter(25)
+                value = None if ro is None or uf is None else 2 * ro + uf
+        else:
+            index = {"uf_membrane_life": 25, "uv_lamp_life": 26,
+                     "pump_life": 27, "alkaliser_life": 19}[key]
+            value = self.counter(index)
+        if value is None:
+            return None
+        if key not in ("uv_lamp_life", "pump_life"):
+            value /= 1000
+        return max(0, min(100, math.ceil((1 - value / capacity) * 100)))
+
     @property
     def settings(self) -> dict[str, int]:
         return {key: int(self.fields[index]) for key, index in SETTING_FIELDS.items()}
@@ -96,9 +140,9 @@ def decode_message(data: bytes) -> tuple[str, State | None] | None:
         if len(fields) < 57 or fields[2] != "W2" or fields[-1] != "END":
             return None
         for index, value in enumerate(fields[:-1]):
-            # Optional beta counters are validated independently by counter().
+            # Optional counters are validated independently by counter().
             # A bad analytics value must not take the working controls offline.
-            if index in (1, 2, 19, 24, 25, 26):
+            if index in (1, 2, *OPTIONAL_COUNTER_FIELDS):
                 continue
             if not math.isfinite(float(value)):
                 return None

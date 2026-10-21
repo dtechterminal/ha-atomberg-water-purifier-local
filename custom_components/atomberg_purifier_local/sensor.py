@@ -3,6 +3,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, Sen
 from homeassistant.const import EntityCategory
 
 from .entity import PurifierEntity
+from .protocol import FILTER_LIFE
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -16,6 +17,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
                         SensorDeviceClass.VOLUME, "mdi:water-check"),
         AnalyticsSensor(entry.runtime_data, "runtime", "Runtime", "h",
                         SensorDeviceClass.DURATION, "mdi:timer-outline"),
+        *(FilterLifeSensor(entry.runtime_data, key, name)
+          for key, (name, _) in FILTER_LIFE.items()),
     ])
 
 
@@ -47,7 +50,31 @@ class ConnectionSensor(PurifierEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        return {"receiver": self.coordinator.client.receiver}
+        last_read = self.coordinator.last_successful_read
+        return {"receiver": self.coordinator.client.receiver,
+                "poll_interval_seconds": 10,
+                "last_successful_read": last_read.isoformat() if last_read else None}
+
+
+class FilterLifeSensor(PurifierEntity, SensorEntity):
+    """App-derived capacity estimate for the original installed component."""
+
+    _attr_native_unit_of_measurement = "%"
+    _attr_suggested_display_precision = 0
+    _attr_icon = "mdi:air-filter"
+
+    @property
+    def native_value(self):
+        return self.coordinator.data.filter_life(self.key)
+
+    @property
+    def extra_state_attributes(self):
+        return {
+            "calculation": "remaining_capacity",
+            "assumed_filter_history": "original_components",
+            "replacement_history_imported": False,
+            "flow_adjustment_applied": False,
+        }
 
 
 class AnalyticsSensor(PurifierEntity, SensorEntity):
