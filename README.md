@@ -17,12 +17,13 @@ The purifier must already be connected to your Wi-Fi. First-time Wi-Fi setup is 
 - Input and output TDS readings, in mg/L, updated every 30 seconds.
 - A **Refresh readings** button to request the device's latest readings immediately.
 - A connection sensor showing that Home Assistant is using your local network.
+- **Beta analytics:** lifetime water, estimated water saved, and purifier runtime. These match the W2 app; validation through a complete refill cycle is still pending.
 
 Changes are confirmed by reading the setting back from the purifier. The integration does not assume a command succeeded just because it was sent.
 
 **Tested hardware:** Intellon, local model identifier W2, reported firmware `74`. Other purifier models and firmware versions have not been verified. Atomberg fans use a different integration.
 
-Filter-health percentages, fault explanations and water-use totals are not exposed yet. Their local data has not been mapped reliably. The app's **Skip Flow Check** fault workaround is also not mapped or exposed. The app's cloud history and firmware-update features are outside this integration.
+Filter-health percentages and fault explanations are not exposed yet. Their local data has not been mapped reliably. The app's **Skip Flow Check** fault workaround is also not mapped or exposed. The app's cloud history and firmware-update features are outside this integration.
 
 ## 1. Install with HACS
 
@@ -68,9 +69,14 @@ Some routers call their block option “Pause device” and block the whole netw
 
 The Atomberg app's cloud features and online updates may stop working while internet access is blocked. Home Assistant controls use the local connection.
 
+## Add the matching dashboard card
+
+Want an app-style dashboard? Install the [Atomberg Purifier Card](https://github.com/dtechterminal/atomberg-purifier-card) through HACS as a **Dashboard** repository. It includes the purifier illustration, TDS readings, all local controls, and beta lifetime analytics. It finds your purifier automatically and needs no YAML for a single device.
+
 ## Useful tips
 
 - **Sleep times** use the time zone configured in Home Assistant. Enable **Sleep schedule** before changing its times.
+- **Beta analytics** are lifetime device counters. Water saved is a manufacturer estimate, not a direct drain measurement. They may update during refilling rather than dispensing. These new sensors retain history but do not yet contribute to long-term statistics while counter/reset behavior is being checked.
 - **TDS readings** show the device's measured value. The Atomberg app may round it or show a limit such as “≥1500”.
 - **Changes from the app or purifier** appear in Home Assistant on the next refresh, normally within 30 seconds. Changes made in Home Assistant are read back immediately.
 - **IP address changed?** Open the integration's menu and choose **Reconfigure**. Your existing entities are kept.

@@ -44,6 +44,29 @@ class State:
     device_id: str
     fields: tuple[str, ...]
 
+    def counter(self, index: int) -> float | None:
+        """Reject invalid optional analytics without losing the device controls."""
+        try:
+            value = float(self.fields[index])
+        except (IndexError, ValueError, TypeError):
+            return None
+        return value if math.isfinite(value) and 0 <= value <= 1e12 else None
+
+    @property
+    def lifetime_water(self) -> float | None:
+        value = self.counter(19)
+        return None if value is None else value / 1000
+
+    @property
+    def water_saved(self) -> float | None:
+        ro, uf = self.counter(24), self.counter(25)
+        return None if ro is None or uf is None else (ro * 1.5 + uf * 3) / 1000
+
+    @property
+    def runtime(self) -> float | None:
+        value = self.counter(26)
+        return None if value is None else value / 3600
+
     @property
     def settings(self) -> dict[str, int]:
         return {key: int(self.fields[index]) for key, index in SETTING_FIELDS.items()}
@@ -73,7 +96,9 @@ def decode_message(data: bytes) -> tuple[str, State | None] | None:
         if len(fields) < 57 or fields[2] != "W2" or fields[-1] != "END":
             return None
         for index, value in enumerate(fields[:-1]):
-            if index in (1, 2):
+            # Optional beta counters are validated independently by counter().
+            # A bad analytics value must not take the working controls offline.
+            if index in (1, 2, 19, 24, 25, 26):
                 continue
             if not math.isfinite(float(value)):
                 return None

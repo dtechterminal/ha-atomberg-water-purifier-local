@@ -1,7 +1,7 @@
 {
   "domain": "atomberg_purifier_local",
   "name": "Atomberg Water Purifier Local",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "codeowners": ["@ankurpandeyvns"],
   "config_flow": true,
   "documentation": "https://github.com/dtechterminal/ha-atomberg-water-purifier-local",
