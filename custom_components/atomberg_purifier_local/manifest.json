@@ -1,0 +1,12 @@
+{
+  "domain": "atomberg_purifier_local",
+  "name": "Atomberg Water Purifier Local",
+  "version": "0.1.0",
+  "codeowners": ["@ankurpandeyvns"],
+  "config_flow": true,
+  "documentation": "https://github.com/dtechterminal/ha-atomberg-water-purifier-local",
+  "issue_tracker": "https://github.com/dtechterminal/ha-atomberg-water-purifier-local/issues",
+  "iot_class": "local_polling",
+  "integration_type": "device",
+  "requirements": []
+}

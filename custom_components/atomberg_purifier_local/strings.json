@@ -1,0 +1,27 @@
+{
+  "title": "Atomberg Water Purifier Local",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Choose your water purifier",
+        "description": "These Intellon purifiers were found on your local network. No Atomberg login is needed.",
+        "data": {"device": "Water purifier"}
+      },
+      "manual": {
+        "title": "Connect to your water purifier",
+        "description": "Enter the purifier's IP address from your router's device list. It must already be connected to Wi-Fi. If your devices use separate VLANs, Home Assistant must be able to receive the purifier's broadcast replies.",
+        "data": {"host": "Purifier IP address"}
+      },
+      "finish": {
+        "title": "Your local connection works",
+        "description": "Home Assistant read your purifier directly at {host}. No cloud connection or account was used.\n\nAfter finishing, try Display sleep in Home Assistant. To keep the purifier fully offline, block its internet access in your router, then check that its readings and controls still work. Keep local access between Home Assistant and the purifier allowed."
+      }
+    },
+    "error": {"cannot_connect": "The purifier did not return valid local status. Check its IP address, power and network access. Across VLANs, ordinary routing alone cannot carry its broadcast replies."},
+    "abort": {
+      "already_configured": "This purifier is already configured.",
+      "reconfigure_successful": "The local connection was updated.",
+      "unique_id_mismatch": "That address belongs to a different purifier."
+    }
+  }
+}
