@@ -32,18 +32,12 @@ Filter-life estimates assume the original filters, UV lamp and pump. Past replac
 You need Home Assistant with [HACS](https://www.hacs.dev/) installed.
 
 1. Open **HACS** in Home Assistant.
-2. Open **⋮ → Custom repositories**.
-3. Paste this address:
+2. Search for **Atomberg Water Purifier Local**, open it, and click **Download**.
+3. **Restart Home Assistant.**
 
-   ```text
-   https://github.com/dtechterminal/ha-atomberg-water-purifier-local
-   ```
+Future updates appear in Home Assistant's update list.
 
-4. Choose **Integration**, then click **Add**.
-5. Find **Atomberg Water Purifier Local** in HACS and download it.
-6. **Restart Home Assistant.**
-
-You only add the repository once. Future releases can be installed through HACS.
+**Added it earlier as a custom repository?** Nothing to change; updates keep working.
 
 ## 2. Add your purifier
 
@@ -55,8 +49,6 @@ You only add the repository once. Future releases can be installed through HACS.
 You do not need to edit YAML or enter an Atomberg password.
 
 Home Assistant 2026.3 or newer displays the bundled Atomberg logo locally. See [brand image credits](docs/branding.md).
-
-This is a **HACS custom repository**. It is not in HACS's default catalog.
 
 **Installing without HACS?** Download the source code of the [latest release](https://github.com/dtechterminal/ha-atomberg-water-purifier-local/releases/latest) and copy its `custom_components/atomberg_purifier_local` folder into your Home Assistant `config/custom_components/` folder. Restart Home Assistant, then follow step 2 above.
 
