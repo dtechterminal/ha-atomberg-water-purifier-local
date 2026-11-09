@@ -6,6 +6,7 @@ from contextlib import suppress
 import ipaddress
 import json
 import socket
+import weakref
 
 from .packet import decode_frame, open_receiver, route_interface
 from .protocol import COMMAND_PORT, STATE_PORT, State, decode_message, normalize_device_id, validate_command
@@ -13,6 +14,20 @@ from .protocol import COMMAND_PORT, STATE_PORT, State, decode_message, normalize
 
 class CannotConnect(Exception):
     """No confirmed local reply from this purifier."""
+
+
+# Every purifier replies to the same UDP port, and so do discovery beacons. Only one
+# socket may listen at a time, or replies reach the wrong reader (Linux) or the
+# bind fails (BSD). One lock per event loop covers all purifiers and discovery.
+_port_locks: weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, asyncio.Lock] = (
+    weakref.WeakKeyDictionary())
+
+
+def _port_lock() -> asyncio.Lock:
+    loop = asyncio.get_running_loop()
+    if (lock := _port_locks.get(loop)) is None:
+        lock = _port_locks[loop] = asyncio.Lock()
+    return lock
 
 
 class LocalClient:
@@ -26,12 +41,11 @@ class LocalClient:
         self.interface = interface
         self.timeout = timeout
         self.receiver = "udp"
-        self._lock = asyncio.Lock()
 
     async def exchange(self, command: dict) -> State:
         command = validate_command(command)
         expected = {} if command == {"read": 1} else command
-        async with self._lock:
+        async with _port_lock():
             loop = asyncio.get_running_loop()
             queue: asyncio.Queue[tuple[State, str]] = asyncio.Queue(maxsize=32)
             sockets = []
@@ -119,6 +133,11 @@ class LocalClient:
 
 async def discover(seconds: float = 4.0) -> dict[str, str]:
     """Listen for W2 beacons locally; never contact a cloud or scan unrelated hosts."""
+    async with _port_lock():
+        return await _discover(seconds)
+
+
+async def _discover(seconds: float) -> dict[str, str]:
     loop = asyncio.get_running_loop()
     found: dict[str, str] = {}
     sockets = []

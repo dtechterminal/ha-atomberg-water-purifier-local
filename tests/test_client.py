@@ -110,3 +110,26 @@ async def test_cancellation_releases_listener(network):
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as check:
         check.bind(("0.0.0.0", port))
         assert check.getsockname()[1] == port
+
+
+async def test_two_purifiers_reading_at_once_share_the_reply_port(network):
+    # Replies always arrive on one fixed UDP port. Two purifiers polled at the same
+    # moment must take turns listening, or one socket receives the other's reply.
+    server, _ = network
+    loop = asyncio.get_running_loop()
+    other = "020000000099"
+    first = client.LocalClient("127.0.0.1", DEVICE, timeout=.5)
+    second = client.LocalClient("127.0.0.1", other, timeout=.5)
+
+    async def appliances():
+        while True:
+            _, addr = await loop.sock_recvfrom(server, 8192)
+            await loop.sock_sendto(server, wire(), addr)
+            await loop.sock_sendto(server, wire(device=other), addr)
+
+    task = asyncio.create_task(appliances())
+    try:
+        states = await asyncio.gather(first.read(), second.read())
+        assert [state.device_id for state in states] == [DEVICE, other]
+    finally:
+        task.cancel()
