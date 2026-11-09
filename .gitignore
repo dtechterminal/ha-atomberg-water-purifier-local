@@ -20,3 +20,6 @@ __pycache__/
 .storage/
 .ssh/
 .secrets/
+node_modules/
+test-results/
+playwright-report/

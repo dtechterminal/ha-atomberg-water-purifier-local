@@ -121,6 +121,8 @@ uv run --with pytest --with pytest-asyncio --with scapy pytest -q
 uv run --with ruff ruff check custom_components tests
 ```
 
+The dashboard card's source and build setup are in [`frontend/`](frontend); see [card development](docs/card-development.md) to rebuild or test it.
+
 Atomberg's [official command reference](https://developer.atomberg-iot.com/reference/send-command) documents the setting names. Local W2 operation and state-field mappings were verified on physical hardware; this is an independent community integration.
 
 For help, [open an issue](https://github.com/dtechterminal/ha-atomberg-water-purifier-local/issues) with your purifier model, firmware and the error shown. Keep passwords, tokens and private network captures out of issues.
