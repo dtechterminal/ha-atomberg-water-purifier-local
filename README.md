@@ -19,6 +19,7 @@ The purifier must already be connected to your Wi-Fi. First-time Wi-Fi setup is 
 - A connection sensor showing your local connection and the last successful read time.
 - Estimated remaining life for all eight filters and components, using the app’s capacity formulas.
 - **Beta analytics:** lifetime water, estimated water saved, and purifier runtime. These match the W2 app; validation through a complete refill cycle is still pending.
+- A bundled [dashboard card](#dashboard-card) with every reading and control, registered automatically.
 
 Changes are confirmed by reading the setting back from the purifier. The integration does not assume a command succeeded just because it was sent.
 
@@ -57,7 +58,7 @@ Home Assistant 2026.3 or newer displays the bundled Atomberg logo locally. See [
 
 This is a **HACS custom repository**. It is not in HACS's default catalog.
 
-**Installing without HACS?** Download `atomberg_purifier_local.zip` from the [latest release](https://github.com/dtechterminal/ha-atomberg-water-purifier-local/releases/latest). Extract its contents into `config/custom_components/atomberg_purifier_local`, restart Home Assistant, then follow step 2 above.
+**Installing without HACS?** Download the source code of the [latest release](https://github.com/dtechterminal/ha-atomberg-water-purifier-local/releases/latest) and copy its `custom_components/atomberg_purifier_local` folder into your Home Assistant `config/custom_components/` folder. Restart Home Assistant, then follow step 2 above.
 
 ## 3. Keep it working without the internet
 
@@ -70,9 +71,31 @@ Some routers call their block option “Pause device” and block the whole netw
 
 The Atomberg app's cloud features and online updates may stop working while internet access is blocked. Home Assistant controls use the local connection.
 
-## Add the matching dashboard card
+## Dashboard card
 
-Want an app-style dashboard? Install the [Atomberg Purifier Card](https://github.com/dtechterminal/atomberg-purifier-card) through HACS as a **Dashboard** repository. It includes the purifier illustration, TDS readings, all local controls, a Filters page, and beta lifetime analytics. It finds your purifier automatically and needs no YAML for a single device.
+The integration includes an app-style dashboard card with the purifier illustration, TDS readings, all local controls, a Filters page and beta lifetime analytics. Nothing extra to install: the integration serves the card itself and adds it to your dashboard resources.
+
+1. Open your dashboard and choose **Edit dashboard → Add card**.
+2. Search for **Atomberg Purifier**. With one purifier, it finds the device automatically. With several, choose one in the card editor.
+3. Give it a title if you like, then **Save**.
+
+![Atomberg Purifier Card with synthetic readings](docs/card-preview.png)
+
+The visual editor is the easiest route. YAML also works:
+
+```yaml
+type: custom:atomberg-purifier-card
+title: Kitchen water
+show_analytics: true
+```
+
+For multiple purifiers, add `entity:` using that purifier's **Input TDS** entity. The other entities are found automatically.
+
+**Can't see the card?** Reload the browser. Under **Settings → Dashboards → ⋮ → Resources**, check that `/atomberg_purifier_local/atomberg-purifier-card.js` is listed as a JavaScript module. If your dashboard resources are managed in YAML, add that URL yourself.
+
+**Used the separate Atomberg Purifier Card before?** Remove it from HACS. The bundled card replaces it and keeps the same card type, so your dashboards keep working.
+
+![Filters tab with synthetic readings](docs/card-filters.png)
 
 ## Useful tips
 

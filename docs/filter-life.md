@@ -12,7 +12,7 @@ percentage will not be correct after a replacement.
 The app also adjusts some percentages using flow performance and its previous
 health reading. Those adjustments are not included here. These are capacity
 estimates, not a water-safety measurement or an exact copy of every app health
-decision. The companion card labels them **Estimated remaining life**.
+decision. The bundled dashboard card labels them **Estimated remaining life**.
 
 ## Decoded calculation
 

@@ -11,7 +11,7 @@ The tested W2 sends a 61-field status record. Established settings and TDS readi
 
 ## Beta analytics (0.2.0)
 
-These readings matched the corresponding W2 app pages. They are provisional until comparison through a full refill cycle is complete. Each entity carries `mapping_status: beta`; the companion card labels its Insights page **Beta**. Filter life uses the independently recovered app formulas described below.
+These readings matched the corresponding W2 app pages. They are provisional until comparison through a full refill cycle is complete. Each entity carries `mapping_status: beta`; the bundled dashboard card labels its Insights page **Beta**. Filter life uses the independently recovered app formulas described below.
 
 | Entity suffix | Local calculation | Unit |
 | --- | --- | --- |
